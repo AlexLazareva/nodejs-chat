@@ -4,7 +4,7 @@ const express = require('express');
 const app = express();
 const nunjucks = require('nunjucks');
 
-nunjucks.configure('./client', {
+nunjucks.configure('./client/views', {
     autoescape: true,
     express: app
 });
