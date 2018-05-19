@@ -20,6 +20,19 @@ app.get('/', (req, res) => {
 
 io.on('connection', function (socket) {
     socket.emit('connected', "Socket connected!");
+
+    socket.join('all');
+
+    socket.on('msg', content => {
+        console.log("MSG", content);
+        const obj = {
+            date: new Date(),
+            content: content,
+            username: socket.id
+        };
+        socket.emit("message", obj);
+        socket.to('all').emit("message", obj);
+    });
 });
 
 server.listen(8000, '0.0.0.0', () => {
