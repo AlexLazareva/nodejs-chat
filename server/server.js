@@ -6,6 +6,10 @@ const nunjucks = require('nunjucks');
 
 const server = require('http').Server(app);
 const io = require('socket.io')(server, {serveClient: true});
+const mongoose = require('mongoose');
+
+mongoose.connect('mongodb://localhost:27017/nodejs-chat', {});
+mongoose.Promise = require('bluebird');
 
 nunjucks.configure('./client/views', {
     autoescape: true,
