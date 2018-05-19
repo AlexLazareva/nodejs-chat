@@ -27,20 +27,20 @@ $(".logout-btn").on('click', e => {
     });
 });
 
-$( document ).ready( () => {
-    var socket = io.connect('http://localhost:7777');
+$(document).ready( () => {
+    var socket = io.connect('http://localhost:8000');
     socket.on('connected', function (msg) {
         console.log(msg);
-        socket.emit('receiveHistory');
+        // socket.emit('receiveHistory');
     });
 
-    socket.on('message', addMessage);
-
-    socket.on('history', messages => {
-        for (let message of messages) {
-            addMessage(message);
-        }
-    });
+    // socket.on('message', addMessage);
+    //
+    // socket.on('history', messages => {
+    //     for (let message of messages) {
+    //         addMessage(message);
+    //     }
+    // });
 
     $('.chat-message button').on('click', e => {
         e.preventDefault();
