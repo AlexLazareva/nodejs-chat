@@ -7,6 +7,7 @@ const nunjucks = require('nunjucks');
 const server = require('http').Server(app);
 const io = require('socket.io')(server, {serveClient: true});
 const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 
 const passport = require('passport');
 const { Strategy, ExtractJwt } = require('passport-jwt');
@@ -29,21 +30,12 @@ nunjucks.configure('./client/views', {
     express: app
 });
 
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(bodyParser.json());
+
 require('./sockets')(io);
-
-app.use('/assets', express.static('./client/public'));
-
-function checkAuth(req, res, next) {
-    passport.authenticate('jwt', {session: false}, (err, decryptToken, jwtError) => {
-        if(jwtError != void(0) || err != void(0)) return res.render('index.html', {error: err || jwtError});
-        req.user = decryptToken;
-        next();
-    })(req, res, next);
-}
-
-app.get('/', checkAuth, (req, res) => {
-    res.render('index.html', {date: new Date()});
-});
+require('./router')(app);
 
 server.listen(8000, '0.0.0.0', () => {
     console.log('Server started on port 8000');
