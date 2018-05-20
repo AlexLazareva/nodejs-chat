@@ -31,7 +31,7 @@ $(document).ready( () => {
     var socket = io.connect('http://localhost:8000');
     socket.on('connected', function (msg) {
         console.log(msg);
-        // socket.emit('receiveHistory');
+        socket.emit('receiveHistory');
     });
 
     socket.on('message', addMessage);
