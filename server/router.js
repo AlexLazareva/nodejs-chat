@@ -2,6 +2,7 @@
 
 const UsersModel = require('./models/users.model');
 const _ = require('lodash');
+const config = require('./config');
 
 function checkAuth(req, res, next) {
     passport.authenticate('jwt', {session: false}, (err, decryptToken, jwtError) => {
@@ -9,6 +10,14 @@ function checkAuth(req, res, next) {
         req.user = decryptToken;
         next();
     })(req, res, next);
+}
+
+function createToken(body) {
+    return jwt.sign(
+        body,
+        config.jwt.secretOrKey,
+        {expiresIn: config.expiresIn}
+    );
 }
 
 module.exports = app => {
@@ -27,11 +36,19 @@ module.exports = app => {
             let user = await UsersModel.findOne({username: {$regex: _.escapeRegExp(req.body.name), $options: "i"}}).lean().exec();
             if(user != void(0)) return res.status(400).send({message: "User already exist"});
 
-            user = await UsersModel.create({
+            let user = await UsersModel.create({
                 username: req.body.username,
                 password: req.body.password
             });
 
+            const token = createToken({
+                id: user._id,
+                username: user.username
+            });
+
+            res.cookie('token', token, {
+                httpOnly: true
+            });
             res.status(200).send({message: "User create!"});
 
         } catch (e) {

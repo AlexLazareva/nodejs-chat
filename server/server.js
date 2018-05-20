@@ -12,12 +12,9 @@ const bodyParser = require('body-parser');
 const passport = require('passport');
 const { Strategy, ExtractJwt } = require('passport-jwt');
 
-const opts = {
-    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    secretOrKey: '0NETjPmf2dxu'
-};
+const { jwt} = require('./config');
 
-passport.use(new Strategy(opts, function(jwt_payload, done) {
+passport.use(new Strategy(jwt, function(jwt_payload, done) {
     if(jwt_payload != void(0)) return done(false, jwt_payload);
     done();
 }));
