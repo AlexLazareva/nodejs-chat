@@ -3,6 +3,7 @@
 const UsersModel = require('./models/users.model');
 const _ = require('lodash');
 const config = require('./config');
+const bcrypt = require('bcryptjs');
 
 function checkAuth(req, res, next) {
     passport.authenticate('jwt', {session: false}, (err, decryptToken, jwtError) => {
@@ -27,8 +28,29 @@ module.exports = app => {
         res.render('index.html', {date: new Date()});
     });
 
-    app.post('/login', (req, res) => {
+    app.post('/login', async (req, res) => {
+        try {
+            let user = await UsersModel.findOne({username: {$regex: _.escapeRegExp(req.body.name), $options: "i"}}).lean().exec();
 
+            if(user != void(0) || bcrypt.compareSync(req.body.password, user.password)) {
+                const token = createToken({
+                    id: user._id,
+                    username: user.username
+                });
+
+                res.cookie('token', token, {
+                    httpOnly: true
+                });
+
+                res.status(200).send({message: "User login success"});
+
+            } else {
+                res.status(400).send({message: "User not exist or password not correct"});
+            }
+        } catch(e) {
+            console.error("Error, login", e);
+            res.status(500).send({message: "some error"});
+        }
     });
 
     app.post('/register', async (req, res) => {
@@ -53,6 +75,7 @@ module.exports = app => {
 
         } catch (e) {
             console.error("Error, register", e);
+            res.status(500).send({message: "some error"});
         }
     });
 };
