@@ -8,11 +8,12 @@ const server = require('http').Server(app);
 const io = require('socket.io')(server, {serveClient: true});
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 const passport = require('passport');
-const { Strategy, ExtractJwt } = require('passport-jwt');
+const { Strategy } = require('passport-jwt');
 
-const { jwt} = require('./config');
+const { jwt } = require('./config');
 
 passport.use(new Strategy(jwt, function(jwt_payload, done) {
     if(jwt_payload != void(0)) return done(false, jwt_payload);
@@ -30,6 +31,8 @@ nunjucks.configure('./client/views', {
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(bodyParser.json());
+
+app.use(cookieParser());
 
 require('./sockets')(io);
 require('./router')(app);
